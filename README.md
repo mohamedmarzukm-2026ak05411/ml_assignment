@@ -1,6 +1,6 @@
 # ML Assignment 2 - Wall Following Robot Navigation
 
-Submitted by: <your full name>, BITS ID: <your BITS ID>
+Submitted by: Mohamed Marzuk M, BITS ID: 2026AK05411
 
 ## a. Problem statement
 
@@ -29,9 +29,9 @@ Preprocessing: mean imputation and StandardScaler. Both are inside the saved pip
 
 ## c. GitHub repository link
 
-<add your GitHub repository URL here>
+https://github.com/mohamedmarzukm-2026ak05411/ml_assignment.git
 
-Live Streamlit app: <add your Streamlit app URL here>
+Live Streamlit app:  https://mlassignment-ksamyoicjkigtx4xgbt9hf.streamlit.app/
 
 ```
 project-folder/
@@ -115,4 +115,4 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-The models were saved with scikit-learn 1.7.2, so the same version is used in requirements.txt. On Streamlit Community Cloud I selected Python 3.12 in Advanced settings.
+The models were saved with scikit-learn 1.7.2, so the same version is used in requirements.txt. On Streamlit Community Cloud I selected Python 3.14 in Advanced settings.
