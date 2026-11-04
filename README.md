@@ -29,16 +29,17 @@ Preprocessing: mean imputation and StandardScaler. Both are inside the saved pip
 
 ## c. GitHub repository link
 
-https://github.com/mohamedmarzukm-2026ak05411/ml_assignment.git
+https://github.com/mohamedmarzukm-2026ak05411/ml_assignment
 
-Live Streamlit app:  https://mlassignment-ksamyoicjkigtx4xgbt9hf.streamlit.app/
+Live Streamlit app: https://mlassignment-ksamyoicjkigtx4xgbt9hf.streamlit.app/
 
 ```
 project-folder/
 |-- app.py
 |-- requirements.txt
 |-- README.md
-|-- test_data.csv            last 20% of the run (24 sensors + Movement)
+|-- 2026AK05411_model_training.ipynb   training notebook (EDA, tuning, training, saves model/ and the csv files)
+|-- test_data.csv            last 20% of the rows (24 sensors + Movement)
 |-- model_metrics.csv
 |-- split_comparison.csv     ordered vs random split results
 |-- tuning_results.csv       best hyperparameters and CV scores
@@ -114,5 +115,7 @@ The app only loads the saved `.joblib` models and predicts. It does not train ag
 pip install -r requirements.txt
 streamlit run app.py
 ```
+
+To train the models again, run `2026AK05411_model_training.ipynb` from top to bottom. It downloads the dataset from UCI and writes the models and csv files to an `output/` folder. I ran it on BITS Virtual Lab (Python 3.12).
 
 The models were saved with scikit-learn 1.7.2, so the same version is used in requirements.txt. On Streamlit Community Cloud I selected Python 3.14 in Advanced settings.
