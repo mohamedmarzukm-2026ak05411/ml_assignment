@@ -1,0 +1,6 @@
+ML Model Name,best params,CV macro F1 (mean),CV macro F1 (std),combinations tried,seconds
+Logistic Regression,{'C': 10},0.5676,0.0426,5,7.3
+Decision Tree,"{'max_depth': 10, 'min_samples_leaf': 1}",0.9476,0.0388,20,2.8
+KNN,"{'n_neighbors': 5, 'weights': 'distance'}",0.6878,0.1056,12,1.1
+Naive Bayes,{'var_smoothing': 0.001},0.5386,0.0199,6,0.3
+Support Vector Machine,"{'C': 100, 'gamma': 0.03}",0.7929,0.0654,24,17.7
