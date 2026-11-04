@@ -119,8 +119,3 @@ streamlit run app.py
 To train the models again, run `2026AK05411_model_training.ipynb` from top to bottom. It downloads the dataset from UCI and writes the models and csv files to an `output/` folder. I ran it on BITS Virtual Lab (Python 3.12).
 
 The models were built with scikit-learn (Pedregosa et al., 2011) and saved with version 1.7.2, so the same version is used in requirements.txt. On Streamlit Community Cloud I selected Python 3.14 in Advanced settings.
-
-## References
-
-* Freire, A., Veloso, M., & Barreto, G. (2009). Wall-Following Robot Navigation Data [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C57C8W
-* Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., & Duchesnay, E. (2011). Scikit-learn: Machine Learning in Python. Journal of Machine Learning Research, 12, 2825-2830.
