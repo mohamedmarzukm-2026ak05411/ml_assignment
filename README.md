@@ -74,9 +74,9 @@ Hyperparameter tuning: I used GridSearchCV on the training data only, with TimeS
 | Naive Bayes | var_smoothing: 1e-9, 1e-7, 1e-5, 1e-3, 1e-2, 1e-1 | 1e-3 | 0.5386 |
 | Support Vector Machine | C: 0.3, 1, 3, 10, 30, 100; gamma: scale, 0.01, 0.03, 0.1 | C = 100, gamma = 0.03 | 0.7929 |
 
-For SVM, C = 100 was the best value I tested. It is the highest value in my grid, so a higher C might score slightly better. Going from C = 30 to C = 100 only increased the CV score from 0.7867 to 0.7929, so I did not search further.
+For SVM, C = 100 gave the highest CV macro F1 among the values I tested. Increasing C from 30 to 100 changed the CV score from 0.7867 to 0.7929, and I stopped the search there. Since C = 100 was the upper limit of my grid, I have not established whether a higher C would improve the score.
 
-I also ran the same tuned models on a normal random stratified split (random_state = 16) to investigate potential leakage. The two splits have different test rows and different class proportions (the stratified random test set keeps Slight-Left-Turn at its overall share of 6.0%, while the ordered test set has 9.8%), so the score difference between them is not caused by leakage alone:
+I also ran the same tuned models on a random stratified split (random_state = 16) to investigate potential leakage. This comparison does not isolate the effect of leakage because the two splits use different test rows and different class proportions. The stratified random test set keeps Slight-Left-Turn at its overall share of 6.0%, while the ordered test set has 9.8%. The results below therefore show differences between the evaluation setups, rather than a measured effect of leakage alone:
 
 | ML Model Name | Accuracy random | Accuracy ordered | MCC random | MCC ordered |
 | --- | --- | --- | --- | --- |
