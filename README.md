@@ -4,7 +4,7 @@ Submitted by: Mohamed Marzuk M, BITS ID: 2026AK05411
 
 ## a. Problem statement
 
-A SCITOS G5 robot moves around a room by following the wall in the clockwise direction. It has 24 ultrasound sensors around its body. At each step it takes the 24 readings and then makes one of 4 moves: Move-Forward, Slight-Right-Turn, Sharp-Right-Turn or Slight-Left-Turn.
+This assignment uses the Wall-Following Robot Navigation dataset from the UCI Machine Learning Repository (Freire, Veloso and Barreto, 2009). In this data, a SCITOS G5 robot moves around a room by following the wall in the clockwise direction. It has 24 ultrasound sensors around its body. At each step it takes the 24 readings and then makes one of 4 moves: Move-Forward, Slight-Right-Turn, Sharp-Right-Turn or Slight-Left-Turn.
 
 In this assignment I predict the move from the 24 sensor readings. I trained 5 classification models on the same data, compared them using 6 metrics, and made a Streamlit app where you can upload the test CSV and check the saved models.
 
@@ -23,7 +23,7 @@ In this assignment I predict the move from the 24 sensor readings. I trained 5 c
 | Slight-Right-Turn | 826 | 15.1% |
 | Slight-Left-Turn | 328 | 6.0% |
 
-Train/test split: the rows are in time order. The same label comes in small groups (396 groups, median size 6.5), and two rows next to each other are much more similar than two random rows (median distance 3.31 vs 8.66). If I shuffle and split randomly, the test set will have rows that are almost copies of training rows. So I did not shuffle. I used the first 80% of rows for training (4,364 rows) and the last 20% for testing (1,092 rows). This last 20% is saved as `test_data.csv`. All 4 classes are present in the test set (429 / 408 / 148 / 107 rows). Slight-Left-Turn is a little higher in the test set (9.8%) than in training (5.1%).
+Train/test split: the rows are in time order. The same label comes in small groups (396 groups, median size 6.5), and two rows next to each other are much more similar than two random rows (median distance 3.31 vs 8.66). This suggests a leakage risk: with a random split, many test rows could have a very similar row in the training set, which can make the scores look too high. I checked this: with a random split the median distance from a test row to its nearest training row (after scaling) was 0.61, compared with 0.87 for the ordered split. So I did not shuffle. I used the first 80% of rows for training (4,364 rows) and the last 20% for testing (1,092 rows). This last 20% is saved as `test_data.csv`. All 4 classes are present in the test set (Move-Forward 429, Sharp-Right-Turn 408, Slight-Right-Turn 148, Slight-Left-Turn 107 rows). Slight-Left-Turn is a little higher in the test set (9.8%) than in training (5.1%).
 
 Preprocessing: mean imputation and StandardScaler. Both are inside the saved pipeline for each model, so the app can use the raw sensor columns directly.
 
@@ -64,19 +64,19 @@ All 5 models are trained on the same training rows and tested on the same 1,092 
 | Naive Bayes | 0.5385 | 0.8645 | 0.5765 | 0.6797 | 0.5511 | 0.4308 |
 | Support Vector Machine | 0.8947 | 0.9758 | 0.8949 | 0.8971 | 0.8950 | 0.8460 |
 
-Hyperparameter tuning: I used GridSearchCV on the training data only, with TimeSeriesSplit (4 folds, gap = 10) so that the validation rows always come after the training rows. The gap leaves out 10 rows between the training and validation part of each fold, because rows next to each other are almost the same reading. The score used was macro F1. I took 4 folds because with 5 folds the first training fold has no Slight-Left-Turn rows. The test data was used only once at the end, for the scores in the table above. For Logistic Regression, Decision Tree and SVM I set class_weight = balanced because Slight-Left-Turn is only 6% of the data. random_state = 16.
+Hyperparameter tuning: I used GridSearchCV on the training data only, with TimeSeriesSplit (4 folds, gap = 10) so that the validation rows always come after the training rows. The gap leaves out 10 rows between the training and validation part of each fold, because rows next to each other are very similar readings. The score used was macro F1. I took 4 folds because with 5 folds the first training fold has no Slight-Left-Turn rows. The ordered test set was used only once at the end, for the scores in the table above, and was not used to choose any setting. The random-split comparison further down is a separate experiment on a reshuffled split, done only to investigate potential leakage. For Logistic Regression, Decision Tree and SVM I set class_weight = balanced because Slight-Left-Turn is only 6% of the data. random_state = 16.
 
 | ML Model Name | Values tried | Best values | CV macro F1 |
 | --- | --- | --- | --- |
 | Logistic Regression | C: 0.01, 0.1, 1, 10, 100 | C = 10 | 0.5676 |
-| Decision Tree | max_depth: 4 to 12, min_samples_leaf: 1, 5, 10, 20 | max_depth = 10, min_samples_leaf = 1 | 0.9476 |
-| KNN | k: 3 to 21, weights: uniform / distance | k = 5, distance | 0.6878 |
-| Naive Bayes | var_smoothing: 1e-9 to 1e-1 | 1e-3 | 0.5386 |
-| Support Vector Machine | C: 0.3 to 100, gamma: scale, 0.01, 0.03, 0.1 | C = 100, gamma = 0.03 | 0.7929 |
+| Decision Tree | max_depth: 4, 6, 8, 10, 12; min_samples_leaf: 1, 5, 10, 20 | max_depth = 10, min_samples_leaf = 1 | 0.9476 |
+| KNN | k: 3, 5, 7, 11, 15, 21; weights: uniform, distance | k = 5, distance | 0.6878 |
+| Naive Bayes | var_smoothing: 1e-9, 1e-7, 1e-5, 1e-3, 1e-2, 1e-1 | 1e-3 | 0.5386 |
+| Support Vector Machine | C: 0.3, 1, 3, 10, 30, 100; gamma: scale, 0.01, 0.03, 0.1 | C = 100, gamma = 0.03 | 0.7929 |
 
-For SVM the best C (100) is the highest value in my grid. But going from C = 30 to C = 100 only increased the CV score from 0.7867 to 0.7929, so I did not try higher values.
+For SVM, C = 100 was the best value I tested. It is the highest value in my grid, so a higher C might score slightly better. Going from C = 30 to C = 100 only increased the CV score from 0.7867 to 0.7929, so I did not search further.
 
-I also ran the same tuned models on a normal random split (random_state = 16) to compare with my ordered split:
+I also ran the same tuned models on a normal random stratified split (random_state = 16) to investigate potential leakage. The two splits have different test rows and different class proportions (the stratified random test set keeps Slight-Left-Turn at its overall share of 6.0%, while the ordered test set has 9.8%), so the score difference between them is not caused by leakage alone:
 
 | ML Model Name | Accuracy random | Accuracy ordered | MCC random | MCC ordered |
 | --- | --- | --- | --- | --- |
@@ -90,12 +90,12 @@ I also ran the same tuned models on a normal random split (random_state = 16) to
 
 | ML Model Name | Observation about model performance |
 | --- | --- |
-| Logistic Regression | Accuracy is only 0.666 but AUC is 0.914. So it ranks the classes okay, but a linear boundary is not enough to separate them. Because of class_weight it predicts Slight-Left-Turn a lot: recall is 0.95 but precision is only 0.46. It finds only about half of the Move-Forward rows (recall 0.52). |
-| Decision Tree | Best model on all 6 metrics (accuracy 0.982, MCC 0.973). I think this is because the robot decides its move using distance rules (if a sensor is closer than some value then turn), and a decision tree learns the same type of if-else rules. Lowest F1 is for Slight-Right-Turn (0.95). Accuracy dropped only a little from the random split to the ordered split (0.995 to 0.982), much less than KNN, so it is not just memorising nearby rows. |
-| KNN | Accuracy 0.806, MCC 0.720. This model dropped the most when I changed from the random split to the ordered split (accuracy 0.895 to 0.806). With a random split, the nearest neighbour of a test row is usually the reading just before or after it, so the score was too high. Move-Forward has the lowest recall (0.72). |
-| Naive Bayes | Lowest scores of all models (accuracy 0.539, MCC 0.431). Naive Bayes assumes every sensor is independent and normally distributed. That is not true here: neighbouring sensors are correlated (median 0.40) and about 14% of readings are stuck at 5 m. It predicts the slight turns too many times, for example Slight-Right-Turn precision is only 0.33. |
-| Support Vector Machine | Second best (accuracy 0.895, AUC 0.976, MCC 0.846). Tuning made the biggest difference for SVM, accuracy went from 0.820 (C = 1) to 0.895 (C = 100, gamma = 0.03). The RBF kernel can make non-linear boundaries, so it does much better than Logistic Regression. Most of its mistakes are on Move-Forward rows (recall 0.84). Accuracy dropped about 0.04 with the ordered split. |
-| Overall, Winner for your dataset? | Decision Tree is the best model for this dataset. It is best on all 6 metrics and its rules are easy to explain. SVM is second but about 0.09 lower in accuracy. The random vs ordered split comparison also showed that KNN and SVM look better than they really are when the data is shuffled. |
+| Logistic Regression | Accuracy is 0.666 while AUC is 0.914, so its probability ranking is much better than its final class predictions. It predicts Slight-Left-Turn very often (recall 0.95, precision 0.46) and finds only about half of the Move-Forward rows (recall 0.52). Possible reasons, which I did not test, are that a linear boundary may be too restrictive for these classes, and that class_weight = balanced may push it towards Slight-Left-Turn, the smallest class. |
+| Decision Tree | Best model on all 6 metrics on this test set (accuracy 0.982, MCC 0.973). My hypothesis (not tested) is that the robot's moves follow distance rules (if a sensor is closer than some value then turn), and a decision tree can learn the same type of if-else rules. Lowest F1 is for Slight-Right-Turn (0.95). Accuracy dropped only a little from the random split to the ordered split (0.995 to 0.982), less than KNN, but this alone does not show that the tree is free from memorisation. |
+| KNN | Accuracy 0.806, MCC 0.720. This model dropped the most when I changed from the random split to the ordered split (accuracy 0.895 to 0.806). I checked the nearest training row of each test row: with the random split it was the reading just before or after the test row for 25.6% of test rows, and within 5 rows for 46.0%. With the ordered split this was 0.0% and 0.1%. So part of the higher random-split score likely comes from very similar neighbouring readings. Move-Forward has the lowest recall (0.72). |
+| Naive Bayes | Lowest scores of all models (accuracy 0.539, MCC 0.431). Gaussian Naive Bayes assumes the sensors are independent and normally distributed within each movement class. Inside each class, neighbouring sensors are still correlated (median 0.28 to 0.41) and 7% to 15% of readings are at the 5 m maximum, so the assumption looks weak here. This may explain part of the low score, but I did not test it formally. It predicts the slight turns too many times, for example Slight-Right-Turn precision is only 0.33. |
+| Support Vector Machine | Second best (accuracy 0.895, AUC 0.976, MCC 0.846). Tuning helped SVM a lot: the CV macro F1 went from 0.7376 with the default C = 1, gamma = scale to 0.7929 with C = 100, gamma = 0.03 (CV scores only, so the test set was not used for this comparison). It does much better than Logistic Regression, possibly because the RBF kernel can make non-linear boundaries. Most of its mistakes are on Move-Forward rows (recall 0.84). Accuracy dropped about 0.04 with the ordered split. |
+| Overall, Winner for your dataset? | Decision Tree performed best on the evaluated ordered test set (the last 20% of the recording), on all 6 metrics, and its rules are easy to explain. This does not mean it would be best on other recordings, rooms or robots. SVM is second, about 0.09 lower in accuracy. The random vs ordered split comparison also showed that KNN and SVM score noticeably higher when the data is shuffled. |
 
 ## Streamlit app features
 
@@ -118,4 +118,9 @@ streamlit run app.py
 
 To train the models again, run `2026AK05411_model_training.ipynb` from top to bottom. It downloads the dataset from UCI and writes the models and csv files to an `output/` folder. I ran it on BITS Virtual Lab (Python 3.12).
 
-The models were saved with scikit-learn 1.7.2, so the same version is used in requirements.txt. On Streamlit Community Cloud I selected Python 3.14 in Advanced settings.
+The models were built with scikit-learn (Pedregosa et al., 2011) and saved with version 1.7.2, so the same version is used in requirements.txt. On Streamlit Community Cloud I selected Python 3.14 in Advanced settings.
+
+## References
+
+* Freire, A., Veloso, M., & Barreto, G. (2009). Wall-Following Robot Navigation Data [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C57C8W
+* Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., & Duchesnay, E. (2011). Scikit-learn: Machine Learning in Python. Journal of Machine Learning Research, 12, 2825-2830.
